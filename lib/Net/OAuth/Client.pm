@@ -181,7 +181,11 @@ sub get_request_token {
   );
   $oauth_req->sign;
   my $http_res = $self->request(HTTP::Request->new(
-    $self->request_token_method => $oauth_req->to_url
+    $self->request_token_method => $oauth_req->normalized_request_url,
+    HTTP::Headers->new(
+      Authorization => $oauth_req->to_authorization_header,
+      Content_Length => 0,
+    ),
   ));
   my $oauth_res = $self->_parse_oauth_response('get a request token', $http_res);
   $self->is_v1a(0) unless defined $oauth_res->{callback_confirmed};
@@ -228,7 +232,11 @@ sub get_access_token {
   $oauth_req->sign;
   
   my $http_res = $self->request(HTTP::Request->new(
-    $self->access_token_method => $oauth_req->to_url
+    $self->access_token_method => $oauth_req->normalized_request_url,
+    HTTP::Headers->new(
+      Authorization => $oauth_req->to_authorization_header,
+      Content_Length => 0,
+    ),
   ));
 
   my $oauth_res = $self->_parse_oauth_response('get an access token', $http_res);
